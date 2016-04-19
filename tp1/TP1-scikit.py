@@ -1,4 +1,4 @@
-from skimage import data, io, color
+from skimage import data, io, color, exposure, img_as_float
 import matplotlib
 import matplotlib.pyplot as plt
 from scipy import ndimage
@@ -51,6 +51,48 @@ def seuillage(nImg):
     plt.imshow(Image.fromarray(nImgS), cmap='Greys_r')
     plt.show()
 
+def plot_img_and_hist(img, axes, bins=256):
+
+    img = img_as_float(img)
+    ax_img, ax_hist = axes
+    ax_cdf = ax_hist.twinx()
+
+    # Display image
+    ax_img.imshow(img, cmap=plt.cm.gray)
+    ax_img.set_axis_off()
+    ax_img.set_adjustable('box-forced')
+
+    # Display histogram
+    ax_hist.hist(img.ravel()*256 , bins=bins, histtype='bar', color='cyan', normed=True)
+    ax_hist.ticklabel_format(axis='y', style='scientific', scilimits=(0, 0))
+    ax_hist.set_xlabel('Pixel intensity')
+    ax_hist.set_xlim(0, 255)
+    ax_hist.set_yticks([])
+
+
+    # Display cumulative distribution
+    img_cdf, bins = exposure.cumulative_distribution(img*256, bins)
+    ax_cdf.plot(bins, img_cdf, 'r')
+    ax_cdf.set_yticks([])
+
+    return ax_img, ax_hist, ax_cdf
+
+def egalisation(Img):
+    N = 30
+    fig = plt.figure()
+    axes = numpy.zeros((1,2), dtype=numpy.object)
+
+    axes[0,0] = fig.add_subplot(1, 2, 1)
+    axes[0,1] = fig.add_subplot(1, 2, 2)
+
+    ax_img, ax_hist, ax_cdf = plot_img_and_hist(img, axes[0 , :], N)
+    ax_img.set_title('Image')
+
+    y_min, y_max = ax_hist.get_ylim()
+    ax_hist.set_ylabel('Number of pixels')
+    ax_hist.set_yticks(numpy.linspace(0, y_max, 5))
+    fig.tight_layout()
+    plt.show()
 
 
 
@@ -59,4 +101,5 @@ if __name__ == '__main__':
     nImg = numpy.array(img, numpy.uint8)
 
     # quantification(nImg)
-    seuillage(nImg)
+    # seuillage(nImg)
+    egalisation(img)

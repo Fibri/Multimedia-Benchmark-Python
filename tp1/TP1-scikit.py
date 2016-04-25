@@ -1,10 +1,11 @@
-from skimage import data, io, color, exposure, img_as_float
+from skimage import data, io, color, exposure, img_as_float, transform, filters
 import matplotlib
 import matplotlib.pyplot as plt
 from scipy import ndimage
 from PIL import Image
 import numpy
 import scipy
+from skimage._shared.interpolation import extend_image
 
 
 
@@ -39,18 +40,13 @@ def quadratique(nImg1, nImg2):
 def seuillage(nImg):
     # seuil= int(input('Veuillez saisir la valeur du SEUIL:'))
     seuil = 128
-    nImgS = nImg.copy()
-    for x in range(nImgS.shape[0]):
-        for y in range(nImgS.shape[1]):
-            if nImgS[x][y] > seuil:
-                nImgS[x][y] = 255
-            else:
-                nImgS[x][y] = 0
+    nImgS = nImg <= filters.threshold_otsu(nImg)
+
     fig = plt.figure()
     fig.add_subplot(1, 2, 1)
     plt.imshow(nImg, cmap='Greys_r')
     fig.add_subplot(1, 2, 2)
-    plt.imshow(nImgS, cmap='Greys_r')
+    plt.imshow(nImgS, cmap='Greys')
     plt.show()
     return nImgS
 
@@ -97,11 +93,19 @@ def egalisation(Img):
     fig.tight_layout()
     plt.show()
 
+def agrandissement(img):
+    img_extended = transform.rescale(img, scale=2, mode='constant', preserve_range=True)
+
+    fig = plt.figure()
+    plt.imshow(Image.fromarray(img_extended), cmap='Greys_r')
+    plt.show()
+
+
 if __name__ == '__main__':
-    img = Image.open("putin.jpg").convert('L')
-    nImg = numpy.array(img, numpy.uint8)
+    img = Image.open("talvi.jpg").convert('L')
+    img = numpy.array(img, numpy.uint8)
 
-    print(quadratique(quantification(nImg), nImg))
-    # seuillage(nImg)
+    #print(quadratique(quantification(nImg), nImg))
+    #seuillage(nImg)
     # egalisation(seuillage(nImg))
-
+    agrandissement(img)

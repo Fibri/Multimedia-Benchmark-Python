@@ -22,13 +22,14 @@ def quantification(nImg):
     fig.add_subplot(1, 2, 2)
     plt.imshow(Image.fromarray(nimgQ), cmap='Greys_r')
     plt.show()
+    return nimgQ
 
 def quadratique(nImg1, nImg2):
     if nImg1.shape == nImg2.shape:
         err_quadratique = 0
-        for x in range(nImg.shape[0]):
-            for y in range(nImg.shape[1]):
-                diff=nImg1(y,x)- nImg2(y,x)
+        for x in range(nImg1.shape[0]):
+            for y in range(nImg1.shape[1]):
+                diff=int(nImg1[x][y])- int(nImg2[x][y])
                 err_quadratique=err_quadratique+diff*diff
         err_moyenne=err_quadratique/(nImg1.shape[0]*nImg1.shape[1])
         return err_moyenne
@@ -36,7 +37,8 @@ def quadratique(nImg1, nImg2):
         print("Les images ne sont pas de la même taille")
 
 def seuillage(nImg):
-    seuil= int(input('Veuillez saisir la valeur du SEUIL:'))
+    # seuil= int(input('Veuillez saisir la valeur du SEUIL:'))
+    seuil = 128
     nImgS = nImg.copy()
     for x in range(nImgS.shape[0]):
         for y in range(nImgS.shape[1]):
@@ -46,10 +48,11 @@ def seuillage(nImg):
                 nImgS[x][y] = 0
     fig = plt.figure()
     fig.add_subplot(1, 2, 1)
-    plt.imshow(Image.fromarray(nImg), cmap='Greys_r')
+    plt.imshow(nImg, cmap='Greys_r')
     fig.add_subplot(1, 2, 2)
-    plt.imshow(Image.fromarray(nImgS), cmap='Greys_r')
+    plt.imshow(nImgS, cmap='Greys_r')
     plt.show()
+    return nImgS
 
 def plot_img_and_hist(img, axes, bins=256):
 
@@ -85,7 +88,7 @@ def egalisation(Img):
     axes[0,0] = fig.add_subplot(1, 2, 1)
     axes[0,1] = fig.add_subplot(1, 2, 2)
 
-    ax_img, ax_hist, ax_cdf = plot_img_and_hist(img, axes[0 , :], N)
+    ax_img, ax_hist, ax_cdf = plot_img_and_hist(Img, axes[0 , :], N)
     ax_img.set_title('Image')
 
     y_min, y_max = ax_hist.get_ylim()
@@ -94,12 +97,11 @@ def egalisation(Img):
     fig.tight_layout()
     plt.show()
 
-
-
 if __name__ == '__main__':
-    img = Image.open("lena.png").convert('L')
+    img = Image.open("putin.jpg").convert('L')
     nImg = numpy.array(img, numpy.uint8)
 
-    # quantification(nImg)
+    print(quadratique(quantification(nImg), nImg))
     # seuillage(nImg)
-    egalisation(img)
+    # egalisation(seuillage(nImg))
+

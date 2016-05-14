@@ -1,3 +1,6 @@
+# coding: utf8
+# skimage >= 0.12
+
 from skimage import data, io, color, exposure, img_as_float, transform, filters
 import matplotlib
 import matplotlib.pyplot as plt
@@ -9,46 +12,46 @@ from skimage._shared.interpolation import extend_image
 
 
 
-def quantification(nImg):
+def quantification(img):
     # q = float(input("Coefficient de quantification : "))
     q = 30
-    nimgQ = nImg.copy()
-    for x in range(nImg.shape[0]):
-        for y in range(nImg.shape[1]):
-            nimgQ[x][y] = q * round(nImg[x][y] / q)
+    imgQ = img.copy()
+    for x in range(img.shape[0]):
+        for y in range(img.shape[1]):
+            imgQ[x][y] = q * round(img[x][y] / q)
 
     fig = plt.figure()
     fig.add_subplot(1, 2, 1)
-    plt.imshow(Image.fromarray(nImg), cmap='Greys_r')
+    plt.imshow(Image.fromarray(img), cmap='Greys_r')
     fig.add_subplot(1, 2, 2)
-    plt.imshow(Image.fromarray(nimgQ), cmap='Greys_r')
+    plt.imshow(Image.fromarray(imgQ), cmap='Greys_r')
     plt.show()
-    return nimgQ
+    return imgQ
 
-def quadratique(nImg1, nImg2):
-    if nImg1.shape == nImg2.shape:
+def quadratique(img1, img2):
+    if img1.shape == img2.shape:
         err_quadratique = 0
-        for x in range(nImg1.shape[0]):
-            for y in range(nImg1.shape[1]):
-                diff=int(nImg1[x][y])- int(nImg2[x][y])
+        for x in range(img1.shape[0]):
+            for y in range(img1.shape[1]):
+                diff= int(img1[x][y]) - int(img2[x][y])
                 err_quadratique=err_quadratique+diff*diff
-        err_moyenne=err_quadratique/(nImg1.shape[0]*nImg1.shape[1])
+        err_moyenne=err_quadratique/(img1.shape[0] * img1.shape[1])
         return err_moyenne
     else:
         print("Les images ne sont pas de la même taille")
 
-def seuillage(nImg):
+def seuillage(img):
     # seuil= int(input('Veuillez saisir la valeur du SEUIL:'))
     seuil = 128
-    nImgS = nImg <= filters.threshold_otsu(nImg)
+    imgS = img <= filters.threshold_otsu(img)
 
     fig = plt.figure()
     fig.add_subplot(1, 2, 1)
-    plt.imshow(nImg, cmap='Greys_r')
+    plt.imshow(img, cmap='Greys_r')
     fig.add_subplot(1, 2, 2)
-    plt.imshow(nImgS, cmap='Greys')
+    plt.imshow(imgS, cmap='Greys')
     plt.show()
-    return nImgS
+    return imgS
 
 def plot_img_and_hist(img, axes, bins=256):
 
@@ -88,16 +91,24 @@ def egalisation(Img):
     ax_img.set_title('Image')
 
     y_min, y_max = ax_hist.get_ylim()
-    ax_hist.set_ylabel('Number of pixels')
+    ax_hist.set_ylabel('Nombre de pixels')
     ax_hist.set_yticks(numpy.linspace(0, y_max, 5))
     fig.tight_layout()
     plt.show()
 
 def agrandissement(img):
-    img_extended = transform.rescale(img, scale=2, mode='constant', preserve_range=True)
+    img_bilinear = transform.rescale(img, scale=2, mode='wrap', preserve_range=True, order=1)
+    # order=1 <=> bi-linear (skimage.transform.wrap)
+    img_nearNeighbor = transform.rescale(image=img, scale=2, mode='wrap', preserve_range=True, order=0)
+    # order=0 <=> nearest neighbor (skimage.transform.wrap)
+
+    print(quadratique(img_nearNeighbor,img_bilinear))   # debug
 
     fig = plt.figure()
-    plt.imshow(Image.fromarray(img_extended), cmap='Greys_r')
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(img_bilinear, cmap='Greys_r')
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(img_nearNeighbor, cmap='Greys_r')
     plt.show()
 
 
@@ -105,7 +116,7 @@ if __name__ == '__main__':
     img = Image.open("talvi.jpg").convert('L')
     img = numpy.array(img, numpy.uint8)
 
-    #print(quadratique(quantification(nImg), nImg))
-    #seuillage(nImg)
-    # egalisation(seuillage(nImg))
+    #print(quadratique(quantification(img), img))
+    #seuillage(img)
+    # egalisation(seuillage(img))
     agrandissement(img)

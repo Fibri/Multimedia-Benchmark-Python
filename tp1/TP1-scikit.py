@@ -1,14 +1,10 @@
 # coding: utf8
 # skimage >= 0.12
 
-from skimage import data, io, color, exposure, img_as_float, transform, filters
-import matplotlib
+from skimage import exposure, img_as_float, transform, filters
 import matplotlib.pyplot as plt
-from scipy import ndimage
 from PIL import Image
 import numpy
-import scipy
-from skimage._shared.interpolation import extend_image
 
 
 
@@ -22,9 +18,9 @@ def quantification(img):
 
     fig = plt.figure()
     fig.add_subplot(1, 2, 1)
-    plt.imshow(Image.fromarray(img), cmap='Greys_r')
+    plt.imshow(img, cmap='Greys_r')
     fig.add_subplot(1, 2, 2)
-    plt.imshow(Image.fromarray(imgQ), cmap='Greys_r')
+    plt.imshow(imgQ, cmap='Greys_r')
     plt.show()
     return imgQ
 

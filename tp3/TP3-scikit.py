@@ -25,8 +25,16 @@ def chess(paramh, paramv):
         for j in range(256):
             if np.sin(2 * np.pi * i / paramh) * np.sin(j * 2 * np.pi / paramv) > 0:
                 img[i][j] = 255
+    fig = plt.figure()
+    fig.add_subplot(1,2,1)
+    plt.imshow(img, cmap='gray')
+    fft_img = np.abs(np.log(np.fft.fftshift(np.fft.fft(img))))
+    fig.add_subplot(1,2,2)
+    plt.imshow(fft_img, cmap='gray')
+    plt.show()
 
 
 if __name__ == '__main__':
     img = color.rgb2gray(io.imread("texture2.jpg"))
-    spectre(img)
+    #spectre(img)
+    chess(32, 32)

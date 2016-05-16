@@ -4,8 +4,8 @@
 from skimage import util
 import matplotlib.pyplot as plt
 import numpy as np
-
-from skimage import io, color
+from scipy import ndimage
+from skimage import io, color, filters
 
 
 def convulution_1D():
@@ -40,6 +40,7 @@ def filtre2D(img):
     N=3
     type_bruit = 'AG'
 
+    selem = np.ones([3,3])
     if type_bruit == 'AG':
         bruit = util.random_noise(np.zeros(img.shape),mode='gaussian')
         img_bruitee = util.random_noise(img, mode='gaussian')
@@ -47,10 +48,45 @@ def filtre2D(img):
         bruit = util.random_noise(np.zeros(img.shape), mode='s&p')
         img_bruitee = util.random_noise(img, mode='s&p')
 
+    img_bruit_median = filters.median(img_bruitee,selem)
+    img_bruit_linear = ndimage.convolve(img_bruitee,selem)
+
+    fig = plt.figure()
+
+    if type_bruit == 'SP':
+        bruit_linear = ndimage.convolve(bruit, selem)
+        img_linear = ndimage.convolve(img, selem)
+        fig.add_subplot(3,3,1)
+        plt.imshow(img, cmap='gray')
+        fig.add_subplot(3,3,2)
+        plt.imshow(bruit, cmap='gray')
+        fig.add_subplot(3,3,3)
+        plt.imshow(img_bruitee, cmap='gray')
+        fig.add_subplot(3,3,4)
+        plt.imshow(img_linear, cmap='gray')
+        fig.add_subplot(3,3,5)
+        plt.imshow(bruit_linear, cmap='gray')
+        fig.add_subplot(3,3,6)
+        plt.imshow(img_bruit_linear, cmap='gray')
+        fig.add_subplot(3,3,9)
+        plt.imshow(img_bruit_median, cmap='gray')
+    else:
+        fig.add_subplot(2,2,1)
+        plt.imshow(img, cmap='gray')
+        fig.add_subplot(2,2,2)
+        plt.imshow(img_bruitee, cmap='gray')
+        fig.add_subplot(2,2,3)
+        plt.imshow(img_bruit_linear, cmap='gray')
+        fig.add_subplot(2,2,4)
+        plt.imshow(img_bruit_median, cmap='gray')
+    fig.tight_layout()
+    plt.show()
+
 
 if __name__ == '__main__':
     img = color.rgb2gray(io.imread("talvi.jpg"))
 
     # convulution_1D()
     # filtre_moyenneur_1D()
-    deriv1D()
+    #deriv1D()
+    filtre2D(img)

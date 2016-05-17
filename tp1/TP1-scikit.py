@@ -2,10 +2,10 @@
 # skimage >= 0.12
 
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 
 from skimage import exposure, transform, filters, io, color, measure
-
+from skimage.util.dtype import dtype_range
 
 def quantification(img):
     # q = float(input("Coefficient de quantification : "))
@@ -34,7 +34,7 @@ def quadratique(img1, img2):
 def seuillage(img):
     # seuil= int(input('Veuillez saisir la valeur du SEUIL:'))
     seuil = 20
-    imgS = filters.threshold_isodata(img, seuil) <= img
+    imgS = filters.threshold_isodata(img) <= img
 
     fig = plt.figure()
     fig.add_subplot(1, 2, 1)
@@ -46,46 +46,52 @@ def seuillage(img):
 
 
 def plot_img_and_hist(img, axes, bins=256):
+
     ax_img, ax_hist = axes
     ax_cdf = ax_hist.twinx()
 
     # Display image
     ax_img.imshow(img, cmap='gray')
     ax_img.set_axis_off()
-    ax_img.set_adjustable('box-forced')
 
     # Display histogram
-    ax_hist.hist(img.ravel() * 256, bins=bins, histtype='bar', color='cyan', normed=True)
+    ax_hist.hist(img.ravel() * 255, bins=bins)
     ax_hist.ticklabel_format(axis='y', style='scientific', scilimits=(0, 0))
     ax_hist.set_xlabel('Pixel intensity')
-    ax_hist.set_xlim(0, 255)
-    ax_hist.set_yticks([])
 
+
+    ax_hist.set_xlim(0, 255)
     # Display cumulative distribution
-    img_cdf, bins = exposure.cumulative_distribution(img * 256, bins)
+    img_cdf, bins = exposure.cumulative_distribution(img*255, bins)
     ax_cdf.plot(bins, img_cdf, 'r')
-    ax_cdf.set_yticks([])
 
     return ax_img, ax_hist, ax_cdf
 
 
 def egalisation(img):
-    N = 30
+    # Display results
     fig = plt.figure()
-    axes = numpy.zeros((1, 2), dtype=numpy.object)
+    axes = np.zeros((2, 3), dtype=np.object)
+    axes[0,0] = plt.subplot(2, 2, 1, adjustable='box-forced')
+    axes[0,1] = plt.subplot(2, 2, 2, sharex=axes[0,0], sharey=axes[0,0], adjustable='box-forced')
+    axes[1,0] = plt.subplot(2, 2, 3)
+    axes[1,1] = plt.subplot(2, 2, 4)
 
-    axes[0, 0] = fig.add_subplot(1, 2, 1)
-    axes[0, 1] = fig.add_subplot(1, 2, 2)
+    img_egalisee = exposure.equalize_hist(img)
 
-    ax_img, ax_hist, ax_cdf = plot_img_and_hist(img, axes[0, :], N)
-    ax_img.set_title('Image')
+    ax_img, ax_hist, ax_cdf = plot_img_and_hist(img, axes[:, 0])
+    ax_img.set_title('Image originale')
+    ax_hist.set_ylabel('nombre de pixels')
 
-    y_min, y_max = ax_hist.get_ylim()
-    ax_hist.set_ylabel('Nombre de pixels')
-    ax_hist.set_yticks(numpy.linspace(0, y_max, 5))
-    fig.tight_layout()
+    ax_img, ax_hist, ax_cdf = plot_img_and_hist(img_egalisee, axes[:, 1])
+    ax_img.set_title('Image égalisée')
+
+    ax_cdf.set_ylabel("Part de l'intensité totale")
+
+
+    # prevent overlap of y-axis labels
+    fig.subplots_adjust(wspace=0.4)
     plt.show()
-
 
 def agrandissement(img):
     img_bilinear = transform.rescale(img, scale=2, mode='wrap', preserve_range=True, order=1)
@@ -108,6 +114,6 @@ if __name__ == '__main__':
 
     # print(quadratique(quantification(img), img))
     # seuillage(img)
-    # egalisation(img)
-    seuillage(img)
+    egalisation(img)
+    # seuillage(img)
     # agrandissement(img)

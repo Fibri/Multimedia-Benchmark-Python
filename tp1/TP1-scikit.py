@@ -4,7 +4,7 @@
 import matplotlib.pyplot as plt
 import numpy
 
-from skimage import exposure, img_as_float, transform, filters, io, color, measure
+from skimage import exposure, transform, filters, io, color, measure
 
 
 def quantification(img):
@@ -33,8 +33,8 @@ def quadratique(img1, img2):
 
 def seuillage(img):
     # seuil= int(input('Veuillez saisir la valeur du SEUIL:'))
-    seuil = 128
-    imgS = filters.threshold_otsu(img) <= img
+    seuil = 20
+    imgS = filters.threshold_isodata(img, seuil) <= img
 
     fig = plt.figure()
     fig.add_subplot(1, 2, 1)
@@ -46,7 +46,6 @@ def seuillage(img):
 
 
 def plot_img_and_hist(img, axes, bins=256):
-    img = img_as_float(img)
     ax_img, ax_hist = axes
     ax_cdf = ax_hist.twinx()
 
@@ -70,7 +69,7 @@ def plot_img_and_hist(img, axes, bins=256):
     return ax_img, ax_hist, ax_cdf
 
 
-def egalisation(Img):
+def egalisation(img):
     N = 30
     fig = plt.figure()
     axes = numpy.zeros((1, 2), dtype=numpy.object)
@@ -78,7 +77,7 @@ def egalisation(Img):
     axes[0, 0] = fig.add_subplot(1, 2, 1)
     axes[0, 1] = fig.add_subplot(1, 2, 2)
 
-    ax_img, ax_hist, ax_cdf = plot_img_and_hist(Img, axes[0, :], N)
+    ax_img, ax_hist, ax_cdf = plot_img_and_hist(img, axes[0, :], N)
     ax_img.set_title('Image')
 
     y_min, y_max = ax_hist.get_ylim()
@@ -109,6 +108,6 @@ if __name__ == '__main__':
 
     # print(quadratique(quantification(img), img))
     # seuillage(img)
-    egalisation(img)
+    # egalisation(img)
     seuillage(img)
     # agrandissement(img)

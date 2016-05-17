@@ -54,7 +54,7 @@ def filtre2D(img):
 
     fig = plt.figure()
 
-    if type_bruit == 'SP':
+    if type_bruit == 'AG':
         bruit_linear = ndimage.convolve(bruit, selem)
         img_linear = ndimage.convolve(img, selem)
         fig.add_subplot(3, 3, 1)
@@ -80,7 +80,7 @@ def filtre2D(img):
         plt.imshow(img_bruit_linear, cmap='gray')
         fig.add_subplot(2, 2, 4)
         plt.imshow(img_bruit_median, cmap='gray')
-    fig.tight_layout()
+    #fig.tight_layout()
     plt.show()
 
 

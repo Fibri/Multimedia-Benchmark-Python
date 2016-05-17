@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from scipy import ndimage
-from skimage import io, color, filters
-from skimage import util
+from skimage import io, color, filters, util
 
 
 def convulution_1D():
@@ -41,7 +40,7 @@ def filtre2D(img):
     N = 3
     type_bruit = 'AG'
 
-    selem = np.ones([3, 3])
+    selem = np.ones([N, N])
     if type_bruit == 'AG':
         bruit = util.random_noise(np.zeros(img.shape), mode='gaussian')
         img_bruitee = util.random_noise(img, mode='gaussian')
@@ -80,7 +79,7 @@ def filtre2D(img):
         plt.imshow(img_bruit_linear, cmap='gray')
         fig.add_subplot(2, 2, 4)
         plt.imshow(img_bruit_median, cmap='gray')
-    #fig.tight_layout()
+    # fig.tight_layout()
     plt.show()
 
 
